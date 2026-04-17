@@ -1,0 +1,572 @@
+<!DOCTYPE HTML>
+<html lang="zh">
+	<head>
+		<meta charset="utf-8">
+		<title>八字排盘|八字在线排盘_四柱八字排盘</title>
+		<meta name="keywords" content="八字排盘,八字在线排盘,四柱八字排盘,生辰八字查询,八字测算,五行八字、金木水火土、五行相生相克">
+		<meta name="description" content="一个非常好用的八字排盘系统，免费在线排盘，输入你的生日就可以查询生辰八字，了解自己五行缺什么">
+		<script>
+			if (top !== self) {
+				top.location.href = self.location.href;
+			}
+		</script>
+		<meta name="referrer" content="no-referrer">
+		<script src="./js/jquery-4.0.0.min.js"></script>
+
+		<script src="./js/jquery-ui/jquery-ui.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="./js/jquery-ui/jquery-ui.min.css">
+	
+		<script src="./js/dexie.min.js"></script>
+		<script src="./js/twig.min.js"></script>
+		<script src="./js/locutus.min.js"></script>
+		<script src="./js/papaparse.min.js"></script>
+		<script src="./js/leader-line.min.js"></script>
+		<script src="./js/JW.js"></script>
+		<script src="./js/selectmenu.js"></script>
+		<script src="./js/paipan.min.js"></script>
+
+		<script src="./js/bazi.js"></script>
+		<link rel="stylesheet" type="text/css" href="./styles/bazi.css">
+
+		<link rel="shortcut icon" href="./favicon.ico">
+	</head>
+	<body>
+	
+		<div class="navigation">
+			<table>
+				<tr>
+					<th><a href="./" class="hover">八字排盘</a></th>
+					<th><a href="javascript:alert('未完待续．．．');">批量</a></th>
+					<th><a href="javascript:alert('未完待续．．．');">名单</a></th>
+					<th><a href="javascript:alert('未完待续．．．');">工具</a></th>
+					<th><a href="javascript:alert('未完待续．．．');">十二时辰</a></th>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="bz_toolbar">
+			<table>
+				<tr>
+					<td><label for="zwzs"><input type="checkbox" value="1" id="zwzs">早晚子时</label></td>
+					<td><label for="jbzl"><input type="checkbox" value="1" id="jbzl">基本资料</label></td>
+					<td><label for="swap"><input type="checkbox" value="1" id="swap">四柱顺排</label></td>
+					<td><label for="wxws"><input type="checkbox" value="1" id="wxws">五行五色</label></td>
+					<td><label for="xchh"><input type="checkbox" value="1" id="xchh">刑冲合害</label></td>
+					<td><label for="xscg"><input type="checkbox" value="1" id="xscg">显示藏干</label></td>
+					<td><label for="xsss"><input type="checkbox" value="1" id="xsss">显示十神</label></td>
+					<td><input type="button" value="名单" onclick="form_list();">
+					<td><span id="welcome" style="display:none;">欢迎:<strong></strong><input type="button" value="退出" onclick="form_logout();"></span></td>
+					<td><span id="loginme" style="display:none;"><input type="button" value="登录" onclick="form_login();"></span></td>
+				</tr>
+			</table>
+		</div>
+			
+		<div class="bz_content" id="bz_content">
+
+		<script id="twig_form" type="text/twig">
+			<div class="bz_block" id="bz_block_{{ k }}">
+				<div class="bz_paipan_select">
+					<i class="quickdelete" style="display:inline;" title="删除此盘" onclick="form_remove({{ k }})"></i>
+					<table>
+						<tr>
+							<td>姓名:</td>
+							<td colspan="2">
+								<input type="text" name="nk[]" placeholder="求测者..." autocomplete="off" style="width:240px;">
+								<input type="hidden" name="mp[]">
+								<select name="xb[]"><option value="0">男</option><option value="1">女</option></select>
+								<input type="text" name="ps[]" placeholder="智能解析如男1990年4月1日15点" autocomplete="off" style="width:270px;">
+							</td>
+							<td rowspan="2"><input type="button" value="新增" class="zjpp_button" onclick="javascript:form_init(0, -1);"></td>
+						</tr>
+						<tr>
+							<td>公历:</td>
+							<td><input type="text" name="yy[]" style="width:40px; margin-right:16px">年
+								<input type="text" name="mm[]" style="width:40px;">月
+								<input type="text" name="dd[]" style="width:40px;">日
+							</td>
+							<td rowspan="2">
+								<input type="checkbox" name="wz[]" class="calendar" value="1" title="时辰未知">
+								<input type="text" name="hh[]" style="width:40px;">时
+								<input type="text" name="mt[]" style="width:40px;">分
+								<input type="text" name="ss[]" style="width:40px;">秒
+								[北京时间]
+							</td>
+						</tr>
+						<tr>
+							<td>农历:</td>
+							<td><input type="text" name="ny[]" style="width:40px;">
+								<input type="checkbox" name="ry[]" class="calendar" value="1" title="农历闰月">
+								<input type="text" name="nm[]" style="width:40px;">月
+								<input type="text" name="nd[]" style="width:40px;">日
+							</td>
+							<td rowspan="2"><input type="button" value="保存" class="zjpp_button" onclick="form_submit({{ k }}, true)"></td>
+						</tr>
+						<tr>
+							<td>地区:</td>
+							<td colspan="2"><span class="zcity"></span></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</script>
+
+		<script id="twig_maps" type="text/twig">
+			<div class="bz_paipan_result">
+				<div class="bz_analysis">
+					<table>
+						<tr>
+							<th>姓名</th>
+							<td colspan="5" title="{{ o['nk'] }}">{{ o['nk'] }}</td>
+						</tr>
+						<tr>
+							<th>性别</th>
+							<td>{{ p['mz'] }}/{{ p['cxb'] }}</td>
+							<th>生肖</th>
+							<td>{{ p['sx'] }}</td>
+							<th>星座</th>
+							<td>{{ p['cxz'] }}</td>
+						</tr>
+						<tr>
+							<th>公历</th>
+							<td colspan="5">{{ p['cgl'] }} {{ p['pty'][3] }}时{{ p['pty'][4] }}分{{ p['pty'][5] }}秒</td>
+						</tr>
+						<tr>
+							<th>农历</th>
+							<td colspan="5">{{ p['cnl'] }}</td>
+						</tr>
+						<tr>
+							<th>格局</th>
+							<td colspan="5">{{ p['ctg'][2] }}{{ attribute(p['cwx'], p['wxtg'][2]) }}@{{ p['cdz'][1] }}{{ attribute(p['cwx'], p['wxdz'][1]) }}月[{{ p['clx'] }}]</td>
+						</tr>
+						<tr>
+							<th>提示</th>
+							<td colspan="5"></td>
+						</tr>
+						<tr>
+							<th>五行</th>
+							<td colspan="5">
+								金:{{ p['nwx'][0] }}个;水:{{ p['nwx'][1] }}个;木:{{ p['nwx'][2] }}个;火:{{ p['nwx'][3] }}个;土:{{ p['nwx'][4] }}个;
+							</td>
+						</tr>
+						<tr>
+							<th>阴阳</th>
+							<td colspan="5">阴:{{ p['nyy'][1] }}个;阳:{{ p['nyy'][0] }}个</td>
+						</tr>
+						<tr>
+							<th>起运</th>
+							<td colspan="5">{{ p['qyy_desc'] }}</td>
+						</tr>
+						<tr>
+							<th>交运</th>
+							<td colspan="5">{{ p['qyg_desc'] }}</td>
+						</tr>
+					</table>
+					<div class="notes"><textarea name="nt[]" placeholder="命盘批注...">{{ o['nt'] }}</textarea></div>
+				</div>
+
+				<div class="bz_fatemaps">
+					<div class="xchh" style="height:80px;{% if kvs['xchh'] == 0 %}display:none;{% endif %}">
+						<div class="shushi_lith"></div>
+					</div>
+					<div class="paipan box">
+						<div id="mpan{{ k }}" class="shushi_lith">
+							<dl id="mp{{ k }}-0">
+								<dt>年</dt>
+								<dt>{{ p['csstg'][0] }}</dt>
+								<dd class="wx{{ p['wxtg'][0] }}">
+									{{ p['ctg'][0] }}
+									<span data-turn="1" style="display:none;">{{ p['csstg'][0] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ p['wxdz'][0] }}">
+									{{ p['cdz'][0] }}
+									<span data-turn="1" style="display:none">
+										{% for kk, ii in p['sscg'][0] %}<b class="wx{{ p['wxcg'][0][kk] }}">{{ ii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline">
+										{% for kk, ii in p['bzcg'][0] %}<b class="wx{{ p['wxcg'][0][kk] }}">{{ ii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+
+							<dl id="mp{{ k }}-1">
+								<dt>月</dt>
+								<dt>{{ p['csstg'][1] }}</dt>
+								<dd class="wx{{ p['wxtg'][1] }}">
+									{{ p['ctg'][1] }}
+									<span data-turn="1" style="display:none;">{{ p['csstg'][1] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ p['wxdz'][1] }}">
+									{{ p['cdz'][1] }}
+									<span data-turn="1" style="display:none">
+										{% for kk, ii in p['sscg'][1] %}<b class="wx{{ p['wxcg'][1][kk] }}">{{ ii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline">
+										{% for kk, ii in p['bzcg'][1] %}<b class="wx{{ p['wxcg'][1][kk] }}">{{ ii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+
+							<dl id="mp{{ k }}-2">
+								<dt>日主</dt>
+								<dt>&nbsp;</dt>
+								<dd class="wx{{ p['wxtg'][2] }}">
+									{{ p['ctg'][2] }}
+									<span class="xb{{ p['xb'] }}">{{ p['cxb'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ p['wxdz'][2] }}">
+									{{ p['cdz'][2] }}
+									<span data-turn="1" style="display:none">
+										{% for kk, ii in p['sscg'][2] %}<b class="wx{{ p['wxcg'][2][kk] }}">{{ ii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline">
+										{% for kk, ii in p['bzcg'][2] %}<b class="wx{{ p['wxcg'][2][kk] }}">{{ ii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+
+							<dl id="mp{{ k }}-3">
+								<dt>时</dt>
+								<dt>{% if o['wz'] %}&nbsp;{% else %}{{ p['csstg'][3] }}{% endif %}</dt>
+								<dd class="{% if o['wz'] %}wx{% else %}wx{{ p['wxtg'][3] }}{% endif %}">
+									{% if o['wz'] %}未{% else %}{{ p['ctg'][3] }}{% endif %}
+									<span data-turn="1" style="display:none;">{% if o['wz'] %}{% else %}{{ p['csstg'][3] }}{% endif %}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="{% if o['wz'] %}wx{% else %}wx{{ p['wxdz'][3] }}{% endif %}">
+									{% if o['wz'] %}知{% else %}{{ p['cdz'][3] }}{% endif %}
+									<span data-turn="1" style="display:none;">
+										{% if o['wz'] %}<b class="wx"></b>{% else %}{% for kk, ii in p['sscg'][3] %}<b class="wx{{ p['wxcg'][3][kk] }}">{{ ii }}</b>{% endfor %}{% endif %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% if o['wz'] %}<b class="wx"></b>{% else %}{% for kk, ii in p['bzcg'][3] %}<b class="wx{{ p['wxcg'][3][kk] }}">{{ ii }}</b>{% endfor %}{% endif %}
+									</span>
+								</dd>
+							</dl>
+
+							<dl id="mp{{ k }}-4" onclick="mp({{ k }}, 4)" class="leftsolidtwo" style="background:#Ffff">
+								{% for kk, ii in p['dy'] %}
+								{% if (kk == p['dyk']) %}
+								<dt>{{ ii['syear'] }}年</dt>
+								<dt>{{ ii['sage'] }}~{{ ii['eage'] }}岁</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+								{% endif %}
+								{% endfor %}
+							</dl>
+
+							<dl id="mp{{ k }}-5" onclick="mp({{ k }}, 5)" style="background:#Ffff">
+								{% for kk, ii in p['ly'] %}
+								{% if (p['lyk'] == kk) %}
+								<dt>{{ ii['year'] }}年</dt>
+								<dt>{{ ii['age'] }}岁</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+								{% endif %}
+								{% endfor %}
+							</dl>
+
+							<dl id="mp{{ k }}-6" onclick="mp({{ k }}, 6)" style="background:#Ffff">
+								{% for kk, ii in p['lm'] %}
+								{% if (p['lmk'] == kk) %}
+								<dt style="position:relative;bottom:0">{{ ii['mm'] }}月</dt>
+								<dt>{{ ii['jq'] }}</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+								{% endif %}
+								{% endfor %}
+							</dl>
+
+							<dl id="mp{{ k }}-7" onclick="mp({{ k }}, 7)" style="background:#Ffff">
+								{% for kk, ii in p['lr'] %}
+								{% if (p['lrk'] == kk) %}
+								<dt style="position:relative;bottom:0">{{ ii['mm'] }}月</dt>
+								<dt>{{ ii['dd'] }}日</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+								{% endif %}
+								{% endfor %}
+							</dl>
+
+							<dl id="mp{{ k }}-8" onclick="mp({{ k }}, 8)" style="background:#Ffff">
+								{% for kk, ii in p['ls'] %}
+								{% if (p['lsk'] == kk) %}
+								<dt style="position:relative;bottom:0">{{ ii['shh'] }}-{{ ii['ehh'] }}</dt>
+								<dt>时</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+								{% endif %}
+								{% endfor %}
+							</dl>
+
+						</div>
+					</div>
+					<div class="xchh" style="height:160px;{% if kvs['xchh'] == 0 %}display:none;{% endif %}">
+						<div class="shushi_lith"></div>
+					</div>
+					<div class="bz_dayun box">
+						<div id="dayun{{ k }}" class="shushi_lith">
+							<div class="shushi_label">大运</div>
+							{% for kk, ii in p['dy'] %}
+							<dl onclick="yp({{ k }}, 4, {{ kk }}, -1, -1, -1, -1)" {% if kk == p['dyk'] %}class="selected" {% endif %}>
+								<dt>{{ ii['syear'] }}年</dt>
+								<dt>{{ ii['sage'] }}~{{ ii['eage'] }}岁</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+							{% endfor %}
+							{% for ii in range(0, 8)|slice((p['dy']|length), 9) %}<dl></dl>{% endfor %}
+						</div>
+					</div>
+					<div class="bz_liunian box">
+						<div id="liunian{{ k }}" class="shushi_lith">
+							<div class="shushi_label">流年</div>
+							{% for kk, ii in p['ly'] %}
+							<dl onclick="yp({{ k }}, 5, {{ p['dyk'] }}, {{ kk }}, -1, -1, -1)" class="{% if p['lyk'] == kk %}selected{% endif %}">
+								<dt>{{ ii['year'] }}年</dt>
+								<dt>{{ ii['age'] }}岁</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+							{% endfor %}
+							{% for ii in range(0, 9)|slice((p['ly']|length), 10) %}<dl></dl>{% endfor %}
+						</div>
+					</div>
+					<div class="bz_month box">
+						<div id="liuyue{{ k }}" class="shushi_lith">
+							<div class="shushi_label">月份</div>
+							{% for kk, ii in p['lm'] %}
+							<dl onclick="yp({{ k }}, 6, {{ p['dyk'] }}, {{ p['lyk'] }}, {{ kk }}, -1, -1)" class="{% if kk == p['lmk'] %}selected{% endif %}">
+								<dt style="position:relative;bottom:0">{{ ii['mm'] }}月{{ ii['dd'] }}日</dt>
+								<dt>{{ ii['jq'] }}</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+							{% endfor %}
+							{% for ii in range(0, 11)|slice((p['lm']|length), 12) %}<dl></dl>{% endfor %}
+						</div>
+					</div>
+					<div class="bz_day box">
+						<div id="liuri{{ k }}" class="shushi_lith">
+							<div class="shushi_label" onclick="slide({{ k }})">日期</div>
+							{% for kk, ii in p['lr'] %}
+							<dl onclick="yp({{ k }}, 7, {{ p['dyk'] }}, {{ p['lyk'] }}, {{ p['lmk'] }}, {{ kk }}, -1)" class="{% if kk == p['lrk'] %}selected{% endif %}">
+								<dt style="position:relative;bottom:0">{{ ii['mm'] }}月</dt>
+								<dt>{{ ii['dd'] }}日</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+							{% endfor %}
+							{% for ii in range(0, 14)|slice((p['lr']|length), 15) %}<dl></dl>{% endfor %}
+						</div>
+					</div>
+					<div class="bz_hour box">
+						<div id="liushi{{ k }}" class="shushi_lith">
+							<div class="shushi_label">时辰</div>
+							{% for kk, ii in p['ls'] %}
+							<dl onclick="yp({{ k }}, 8, {{ p['dyk'] }}, {{ p['lyk'] }}, {{ p['lmk'] }}, {{ p['lrk'] }}, {{ kk }})" class="{% if kk == p['lsk'] %}selected{% endif %}">
+								<dt style="position:relative;bottom:0">{{ ii['shh'] }}-{{ ii['ehh'] }}</dt>
+								<dt>时</dt>
+								<dd class="wx{{ ii['wxtg'] }}">
+									{{ ii['ctg'] }}
+									<span data-turn="1" style="display:none;">{{ ii['csstg'] }}</span>
+									<span style="display:none;"></span>
+								</dd>
+								<dd class="wx{{ ii['wxdz'] }}">
+									{{ ii['cdz'] }}
+									<span data-turn="1" style="display:none;">
+										{% for kkk, iii in ii['sscg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+									<span data-turn="2" style="display:inline;">
+										{% for kkk, iii in ii['bzcg'] %}<b class="wx{{ ii['wxcg'][kkk] }}">{{ iii }}</b>{% endfor %}
+									</span>
+								</dd>
+							</dl>
+							{% endfor %}
+							{% for ii in range(0, 12)|slice((p['ls']|length), 13) %}<dl></dl>{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script id="twig_login" type="text/twig">
+			<table class="form-group">
+				<tr>
+					<td><input type="email" name="user" placeholder="真实邮箱地址" value="" autocomplete="off" required style="width:160px;"></td>
+					<td>*用于登录和找回</td>
+				</tr>
+				<tr>
+					<td><input type="password" name="pw" placeholder="排盘登录密码" value="" autocomplete="new-password" required style="width:160px;"></td>
+					<td>*非邮箱密码</td>
+				</tr>
+			</table>
+		</script>
+
+		<script id="twig_list" type="text/twig">
+			<div style="display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; font-family: sans-serif;">
+				<div style="flex: 1; width: 100%; overflow: hidden; background: #fff;">
+					<table class="line_a" style="width: 100%; table-layout: fixed; border-collapse: collapse;">
+						<tr>
+							{% for a in list %}
+								{% if loop.index0 > 0 and loop.index0 % 8 == 0 %}
+									</tr><tr>
+								{% endif %}
+								<td onclick="form_maps({{ state["start"] + loop.index0 }})" title="{{ a[1] }}" 
+									style="border: 1px solid #ddd; text-align: left; padding: 0 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; height: 36px; font-size: 15px; cursor: pointer;">
+									<input type="checkbox" id='maps-{{ a[0] }}' onclick="event.stopPropagation();" style="margin-right: 5px; vertical-align: middle;">
+									<span style="vertical-align: middle;">{{ a[1]|slice(0, 15) }}</span>
+								</td>
+							{% endfor %}
+
+							{% set current_count = list|length %}
+							{% set needed = state["size"] - current_count %}
+
+							{% if needed > 0 %}
+								{% for i in range(1, needed) %}
+									{% if (current_count + i - 1) % 8 == 0 and (current_count + i - 1) > 0 %}
+										</tr><tr>
+									{% endif %}
+									<td style="border: 1px solid #ddd; height: 36px;"></td>
+								{% endfor %}
+							{% endif %}
+						</tr>
+					</table>
+				</div>
+
+				<div style="height: 55px; background: #f4f4f4; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-top: 1px solid #ccc; flex-shrink: 0;">
+					<div class="search-area">
+						搜索: <input type="text" id="search_input" value="{{ state["keyword"] }}" placeholder="输入后点击空白处" style="padding: 5px; border: 1px solid #ccc; width: 180px; font-size: 14px;">
+					</div>
+					<div class="pagination">
+						{% for p in range(1, state["links"]) %}
+							<button type="button" onclick="G.state.page = {{ p }}; renderList();" style="margin: 0 2px; padding: 4px 10px; cursor: pointer; border: 1px solid #ccc; background: #fff; font-size: 13px; {{ p == state["page"] ? 'font-weight:bold; color:red; border-color:red;' : '' }}">
+								{{ p }}
+							</button>
+						{% endfor %}
+					</div>
+					<div class="action-area" style="display: flex; gap: 10px;">
+						<button type="button" onclick="exportCsv()" style="padding: 6px 18px; background: #07C160; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold;">
+							导出 CSV
+						</button>
+						<button type="button" onclick="$('#list-dialog-container').dialog('close')" style="padding: 6px 18px; background: #9e9e9e; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 14px; font-weight: bold;">
+							关闭
+						</button>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		</div>
+	</body>
+</html>
