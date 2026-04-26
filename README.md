@@ -39,7 +39,22 @@ e,其他.<br>
 
 真太阳时经纬数据源改编自: https://github.com/xiangyuecn/AreaCity-JsSpider-StatsGov 感谢!<br>
 
-刑冲合害连线功能的实现是: https://github.com/anseki/leader-line Many thanks!<br>
+刑冲合害连线功能: https://github.com/anseki/leader-line Many thanks!<br>
+
+前端模板库: https://github.com/twigjs/twig.js <br>
+
+前端常用方法库: https://github.com/locutusjs/locutus <br>
+
+其他:
+
+https://jquery.com/ <br>
+
+https://jqueryui.com/ <br>
+
+https://github.com/dexie/Dexie.js <br>
+
+https://gemini.google.com/ <br>
+
 
 ## 📅 命理学习资料<br>
 
