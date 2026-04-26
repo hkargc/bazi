@@ -1,3 +1,11 @@
+/*!
+ * [四柱八字排盘工具] 
+ * 
+ * @description 生辰八字计算与分析
+ * @copyright   Copyright (c) 2026 [hkargc at gmail dot com]
+ * @license     Licensed under the MIT License.
+ * @see         {@link https://github.com/hkargc/bazi} 项目仓库
+ */
 "use strict";
 /**
  * 公共数据
