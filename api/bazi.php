@@ -61,7 +61,7 @@ if ($_POST['act'] == "list") { //该登录用户保存的所有排盘
 		$result = array("error" => 0);
 
 		$list = [];
-		/*$list[] = array(
+		/*$list[] = array( //必须严格按照此顺序
 		  $a['mp'], //系统里面的命盘ID,int
 		  $a['nk'], //以下对应的是save中的字段
 		  $a['xb'],
