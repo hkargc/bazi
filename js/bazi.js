@@ -1226,6 +1226,10 @@ function form_maps(key) {
  * @returns {undefined}
  */
 function form_login() {
+	let host = parse_url(location.href, 'PHP_URL_HOST');
+	if(str_ends_with(host, '.cipuji.com') === false){
+		return alert("此版本为单机版!");
+	}
 	let output = Twig.twig({
 		data: $('#twig_login').html(),
 		autoescape: true,
@@ -1316,7 +1320,6 @@ function form_login() {
 }
 
 function form_ajax(data, cb) {
-	return alert("此版本为单机版!");
 	$.ajax("./api/bazi.php", {
 		type: "POST",
 		xhrFields: {
