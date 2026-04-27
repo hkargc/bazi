@@ -581,7 +581,7 @@ function form_parse(k, s) {
 		if (count(gz) === 4) { //四柱转公历时间
 			let ifs = P.gz2gl(gz[0], gz[1], gz[2], gz[3], date('Y') * 1 - 120, 2);
 			if (ifs) {
-				let ifs = array_reverse(ifs);
+				ifs = array_reverse(ifs);
 				for (let i in ifs) {
 					let a = ifs[i][0];
 					if (a[0] <= date('Y') * 1) {
