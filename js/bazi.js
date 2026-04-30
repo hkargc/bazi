@@ -94,16 +94,11 @@ function mp(k, type) {
 	for (let j = type; j <= 8; j++) {
 		let ids = []; //要删除的划线
 		let elm = document.getElementById("mp" + k + "-" + j);
-		for (let i in G.lines[k]) {
-			if (G.lines[k][i].start === elm) {
+		G.lines[k].forEach(function(a, i) {
+			if(in_array(j, a.gx) && !in_array(i, ids)){
 				ids.push(i);
-				continue;
 			}
-			if (G.lines[k][i].end === elm) {
-				ids.push(i);
-				continue;
-			}
-		}
+		});
 		ids.forEach(function(i) {
 			G.lines[k][i].remove();
 			delete G.lines[k][i];
@@ -325,6 +320,7 @@ function gx(k, p) {
 				endPlug: 'behind',
 				hide: empty(kvs["xchh"]) || o.wz //设置或者未知
 			});
+			line.gx = b; //用于删除处
 			line.startSocket = (a[0] === 0) ? "top" : "bottom";
 			line.endSocket = (a[0] === 0) ? "top" : "bottom";
 			line.color = in_array(a[1], [0, 2]) ? 'red' : 'green';
