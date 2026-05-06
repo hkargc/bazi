@@ -171,7 +171,7 @@
 					<div class="paipan box">
 						<div id="mpan{{ k }}" class="shushi_lith">
 							<dl id="mp{{ k }}-0">
-								<dt>年</dt>
+								<dt>{{ p['yy'] }}年</dt>
 								<dt>{{ p['csstg'][0] }}</dt>
 								<dd class="wx{{ p['wxtg'][0] }}">
 									{{ p['ctg'][0] }}
@@ -190,7 +190,7 @@
 							</dl>
 
 							<dl id="mp{{ k }}-1">
-								<dt>月</dt>
+								<dt>{{ p['mm'] }}月</dt>
 								<dt>{{ p['csstg'][1] }}</dt>
 								<dd class="wx{{ p['wxtg'][1] }}">
 									{{ p['ctg'][1] }}
@@ -209,8 +209,8 @@
 							</dl>
 
 							<dl id="mp{{ k }}-2">
+								<dt>{{ p['dd'] }}日</dt>
 								<dt>日主</dt>
-								<dt>&nbsp;</dt>
 								<dd class="wx{{ p['wxtg'][2] }}">
 									{{ p['ctg'][2] }}
 									<span class="xb{{ p['xb'] }}">{{ p['cxb'] }}</span>
@@ -228,7 +228,7 @@
 							</dl>
 
 							<dl id="mp{{ k }}-3">
-								<dt>时</dt>
+								<dt>{{ p['hh'] }}时</dt>
 								<dt>{% if o['wz'] %}&nbsp;{% else %}{{ p['csstg'][3] }}{% endif %}</dt>
 								<dd class="{% if o['wz'] %}wx{% else %}wx{{ p['wxtg'][3] }}{% endif %}">
 									{% if o['wz'] %}未{% else %}{{ p['ctg'][3] }}{% endif %}
