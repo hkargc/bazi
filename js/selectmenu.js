@@ -19,6 +19,7 @@ function selectmenu() {
 	this.config = {
 		cb: {}, //响应原样返回的数据
 		force: false, //强制选择一个
+		disabled: false, //禁止改动
 		selectWidth: 100, //宽度
 		optionText: '--请选择--', //下拉表默认显示
 		selectSize: 1, //下拉表显示的行数
@@ -42,6 +43,7 @@ function selectmenu() {
 	};
 	this.mkselect = function() {
 		return $("<select></select>").attr({
+			disabled: _this.config.disabled,
 			size: _this.config.selectSize,
 			name: "selectmenu[]"
 		}).css({

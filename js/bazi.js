@@ -708,6 +708,7 @@ function form_init(k, key) {
 	}
 	let m = Object.assign({}, G.list[key]);
 	let et = empty(m);
+	let ds = trim(m[11]) !== ''; //有批注后不允许修改时刻了
 	body_resize(1); //加多一个空间
 	let output = Twig.twig({
 		data: $('#twig_form').html(),
@@ -733,6 +734,10 @@ function form_init(k, key) {
 			"c": c,
 			"k": k,
 			"key": key
+		}).attr({
+			disabled: ds && (c !== "nk"),
+			autocomplete: "off",
+			title: ds && (c !== "nk") ? "有命盘批注后禁止更改它" : ""
 		}).on("change", function(e) {
 			let v = $(this).val();
 			let c = $(this).data("c");
@@ -783,11 +788,18 @@ function form_init(k, key) {
 			"k": k,
 			"key": key
 		}).val(vals[index]).attr({
+			disabled: ds,
 			autocomplete: "off",
-			title: "点击后支持滚轮和上下键"
+			title: ds ? "有命盘批注后禁止更改它" : "点击后支持滚轮和上下键"
 		}).on("focus", function(e) {
+			if ($(this).prop('disabled')) {
+				return false;
+			}
 			$(this).trigger("select");
 		}).on("input", function(e) {
+			if ($(this).prop('disabled')) {
+				return false;
+			}
 			let n = $(this).val();
 			let c = $(this).data("c");
 			let k = $(this).data("k");
@@ -800,6 +812,9 @@ function form_init(k, key) {
 			$(this).val("").trigger("select");
 			return false;
 		}).on("wheel keyup", function(e) {
+			if ($(this).prop('disabled')) {
+				return false;
+			}
 			if ($(this).is(":focus") === false) { //必须点击
 				return false;
 			}
@@ -972,6 +987,7 @@ function form_init(k, key) {
 			k: k
 		},
 		force: true,
+		disabled: ds,
 		selectWidth: 180,
 		optionText: '--不考虑真太阳时--'
 	});
