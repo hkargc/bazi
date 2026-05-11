@@ -763,7 +763,7 @@ function form_init(k, key) {
 							$(em).find(":input[name='nm\[\]']:eq(0)").val(ry);
 						} else {
 							$(this).prop('checked', false);
-							return alert("该年无闰月!");
+							return alert("该年无闰月!", k);
 						}
 					}
 					$(em).find(":input[name='nm\[\]']:eq(0)").trigger("change");
@@ -1004,7 +1004,7 @@ function form_init(k, key) {
 function form_submit(k, save) {
 	let elm = $(`#bz_block_${k}`);
 	if ($(elm).length !== 1) {
-		return alert("表单出错了!");
+		return alert("表单出错了!", k);
 	}
 	if (save && (empty(G.user) || empty(G.pw_hash))) {
 		return $("#loginme").find(":input[type='button']:eq(0)").trigger('click');
@@ -1014,53 +1014,53 @@ function form_submit(k, save) {
 	let xb = uint($(em).val());
 	if (in_array(xb, [0, 1]) === false) {
 		$(em).focus();
-		return alert("请选择性别!");
+		return alert("请选择性别!", k);
 	}
 	em = $(elm).find(":input[name='yy\[\]']:eq(0)");
 	let yy = uint($(em).val());
 	$(em).val(yy); //标准化
 	if (yy > G.eyear || yy < G.syear) {
 		$(em).focus();
-		return alert("年份不正常!");
+		return alert("年份不正常!", k);
 	}
 	em = $(elm).find(":input[name='mm\[\]']:eq(0)");
 	let mm = uint($(em).val());
 	$(em).val(mm); //标准化
 	if (mm > 12 || mm < 1) {
 		$(em).focus();
-		return alert("月份不正确!");
+		return alert("月份不正确!", k);
 	}
 	em = $(elm).find(":input[name='dd\[\]']:eq(0)");
 	let dd = uint($(em).val());
 	$(em).val(dd); //标准化
 	if (dd > 31 || dd < 1) {
 		$(em).focus();
-		return alert("日期不正确!");
+		return alert("日期不正确!", k);
 	}
 	if (P.ValidDate(yy, mm, dd) === false) {
 		$(em).focus();
-		return alert("日期不正常!");
+		return alert("日期不正常!", k);
 	}
 	em = $(elm).find(":input[name='hh\[\]']:eq(0)");
 	let hh = uint($(em).val());
 	$(em).val(hh); //标准化
 	if (hh > 23 || hh < 0) {
 		$(em).focus();
-		return alert("时间不正确!");
+		return alert("时间不正确!", k);
 	}
 	em = $(elm).find(":input[name='mt\[\]']:eq(0)");
 	let mt = uint($(em).val());
 	$(em).val(mt); //标准化
 	if (mt > 59 || mt < 0) {
 		$(em).focus();
-		return alert("分钟不正确!");
+		return alert("分钟不正确!", k);
 	}
 	em = $(elm).find(":input[name='ss\[\]']:eq(0)");
 	let ss = uint($(em).val());
 	$(em).val(ss); //标准化
 	if (ss > 59 || ss < 0) {
 		$(em).focus();
-		return alert("秒数不正确!");
+		return alert("秒数不正确!", k);
 	}
 	em = $(elm).find(":input[name='wz\[\]']:eq(0)");
 	let wz = $(em).prop('checked') ? 1 : 0;
@@ -1068,7 +1068,7 @@ function form_submit(k, save) {
 	let nk = trim($(em).val() ?? null);
 	if (save && empty(nk)) {
 		$(em).focus();
-		return alert("请输入姓名!");
+		return alert("请输入姓名!", k);
 	}
 	em = $(elm).find(":input[name='nt\[\]']:eq(0)");
 	let nt = trim($(em).val() ?? null); //notes
@@ -1104,26 +1104,26 @@ function form_submit(k, save) {
 		}), function(o) {
 			switch (o.error) {
 				case 1000: {
-					alert("请输入姓名!");
+					alert("请输入姓名!", o.k);
 					break;
 				}
 				case 1001: {
-					alert("姓名有重复!");
+					alert("姓名有重复!", o.k);
 					break;
 				}
 				case 1002: {
-					alert("已成功保存!");
+					alert("已成功保存!", o.k);
 					break;
 				}
 				case 2001: //有可能在别处改了密码
 				{
-					alert("请重新登录!");
+					alert("请重新登录!", o.k);
 					$("#welcome").find(":input[type='button']:eq(0)").trigger('click');
 					$("#loginme").find(":input[type='button']:eq(0)").trigger('click');
 					break;
 				}
 				default: {
-					alert(o.error ? "错误代码为:[" + o.error + "]" : "已成功保存!");
+					alert(o.error ? "错误代码为:[" + o.error + "]" : "已成功保存!", o.k);
 					break;
 				}
 			}
@@ -1416,8 +1416,12 @@ function body_resize(c) {
 	//c && $(window).scrollLeft(uint(w - W)); //滚到最右边
 }
 
-function alert(message) {
-	return $("<div><p>" + message + "</p></div>").dialog({
+function alert(message, k) {
+	let elm = $(`#bz_block_${k}`);
+	if (arguments[1] && $(elm).length) {
+		elm = $(elm).find(".bz_analysis").eq(0);
+	}
+	return $("<div></div>").text(message).dialog({
 		modal: true,
 		title: "提示!",
 		width: 300,
@@ -1429,6 +1433,12 @@ function alert(message) {
 		close: function(event, ui) {
 			$(this).dialog("destroy");
 		},
+		position: {
+            my: "center",
+            at: "center",
+            of: $(elm).length ? $(elm) : window,
+            collision: "fit"
+        },
 		buttons: [{
 			text: "好的",
 			click: function() {
