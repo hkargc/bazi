@@ -74,46 +74,7 @@ function validateEmail(Email) {
 	return pattern.test(Email);
 }
 /**
- * 点击"命"盘:清空连线;清空后续命盘;清空后续运盘
- * @param {type} k
- * @param {type} type 值为4至8
- * @returns {undefined}
- */
-function mp(k, type) {
-	k = uint(k);
-	if (empty(k)) {
-		return false;
-	}
-	type = uint(type);
-	if (type < 4 || type > 8) {
-		return false;
-	}
-	if ($(`#bz_block_${k}`).length !== 1) {
-		return false;
-	}
-	for (let j = type; j <= 8; j++) {
-		let ids = []; //要删除的划线
-		let elm = document.getElementById("mp" + k + "-" + j);
-		G.lines[k].forEach(function(a, i) {
-			if(in_array(j, a.gx) && !in_array(i, ids)){
-				ids.push(i);
-			}
-		});
-		ids.forEach(function(i) {
-			G.lines[k][i].remove();
-			delete G.lines[k][i];
-		});
-		$(elm).empty();
-		$("#" + O.types[j - 4] + k + " >dl").each(function() {
-			$(this).removeClass("selected");
-			if (j !== type) {
-				$(this).replaceWith("<dl></dl>");
-			}
-		});
-	}
-}
-/**
- * 点击"运"盘
+ * "运"盘相关事件
  * @param {type} k
  * @param {type} type
  * @param {type} dyk 默认选中的下标,从0开始 -1为不处理
@@ -146,11 +107,22 @@ function yp(k, type, dyk, lyk, lmk, lrk, lsk) {
 		lrk: intval(lrk),
 		lsk: intval(lsk)
 	};
-	mp(k, type); //清理命盘
+
 	let jw = JW[o.ct];
 	P.zwz = kvs["zwzs"]; //全局设置:早晚子时
 	let p = P.fatemaps(o.xb, o.yy, o.mm, o.dd, o.hh, o.mt, o.ss, jw ? jw[2] : null, jw ? jw[3] : null, op);
-	if (type === 4) { //点击大运,返回流年
+	
+	for (let j = type; j <= 8; j++) { //清空后续命盘;清空后续运盘
+		$("#mp" + k + "-" + j).off("click").empty();
+		$("#" + O.types[j - 4] + k + " >dl").each(function() {
+			$(this).removeClass("selected");
+			if (j !== type) {
+				$(this).replaceWith("<dl></dl>");
+			}
+		});
+	}
+	
+	if ((type === 4) && (op.dyk >= 0)) { //点击大运,返回流年
 		for (let i = 0; i < p.ly.length; i++) {
 			let a = p.ly[i];
 			let s = '<dl onclick="yp(' + k + ', 5, ' + op.dyk + ', ' + i + ', -1, -1, -1)">';
@@ -178,9 +150,12 @@ function yp(k, type, dyk, lyk, lmk, lrk, lsk) {
 			$("#liunian" + k + " >dl:eq(" + i + ")").replaceWith(s);
 		}
 		let s = $("#dayun" + k + " >dl:eq(" + op.dyk + ")").html();
-		$("#mp" + k + "-4").html(s);
+		$("#mp" + k + "-" + type).html(s);
+		$("#mp" + k + "-" + type).off("click").on("click", {k, type, op}, function({data:{k, type, op}}) { //ES6的对象解构赋值,AI告诉我的
+			yp(k, type, -1, -1, -1, -1, -1);
+		});
 	}
-	if (type === 5) { //点击流年,返回流月
+	if ((type === 5) && (op.lyk >= 0)) { //点击流年,返回流月
 		for (let i = 0; i < p.lm.length; i++) {
 			let a = p.lm[i];
 			let s = '<dl onclick="yp(' + k + ', 6,  ' + op.dyk + ', ' + op.lyk + ', ' + i + ', -1, -1)">';
@@ -208,9 +183,12 @@ function yp(k, type, dyk, lyk, lmk, lrk, lsk) {
 			$("#liuyue" + k + " >dl:eq(" + i + ")").replaceWith(s);
 		}
 		let s = $("#liunian" + k + " >dl:eq(" + op.lyk + ")").html();
-		$("#mp" + k + "-5").html(s);
+		$("#mp" + k + "-" + type).html(s);
+		$("#mp" + k + "-" + type).off("click").on("click", {k, type, op}, function({data:{k, type, op}}) {
+			yp(k, type, op.dyk, -1, -1, -1, -1);
+		});
 	}
-	if (type === 6) { //点击流月,返回流日
+	if ((type === 6) && (op.lmk >= 0)) { //点击流月,返回流日
 		for (let i = 0; i < p.lr.length; i++) {
 			let a = p.lr[i];
 			let s = '<dl onclick="yp(' + k + ', 7,  ' + op.dyk + ', ' + op.lyk + ', ' + op.lmk + ', ' + i + ', -1)">';
@@ -242,13 +220,16 @@ function yp(k, type, dyk, lyk, lmk, lrk, lsk) {
 			}
 		}
 		let s = $("#liuyue" + k + " >dl:eq(" + op.lmk + ")").html();
-		$("#mp" + k + "-6").html(s);
+		$("#mp" + k + "-" + type).html(s);
+		$("#mp" + k + "-" + type).off("click").on("click", {k, type, op}, function({data:{k, type, op}}) {
+			yp(k, type, op.dyk, op.lyk, -1, -1, -1);
+		});
 		let i = $("#liuri" + k + " >dl").length - 1;
 		for (; i >= p.lr.length; i--) { //从后面往前删除无效的
 			$("#liuri" + k + " >dl:eq(" + i + ")").remove();
 		}
 	}
-	if (type === 7) { //点击流日,返回流时
+	if ((type === 7) && (op.lrk >= 0)) { //点击流日,返回流时
 		for (let i = 0; i < p.ls.length; i++) {
 			let a = p.ls[i];
 			let s = '<dl onclick="yp(' + k + ', 8,  ' + op.dyk + ', ' + op.lyk + ', ' + op.lmk + ', ' + op.lrk + ', ' + i + ')">';
@@ -276,13 +257,22 @@ function yp(k, type, dyk, lyk, lmk, lrk, lsk) {
 			$("#liushi" + k + " >dl:eq(" + i + ")").replaceWith(s);
 		}
 		let s = $("#liuri" + k + " >dl:eq(" + op.lrk + ")").html();
-		$("#mp" + k + "-7").html(s);
+		$("#mp" + k + "-" + type).html(s);
+		$("#mp" + k + "-" + type).off("click").on("click", {k, type, op}, function({data:{k, type, op}}) {
+			yp(k, type, op.dyk, op.lyk, op.lmk, -1, -1);
+		});
 	}
-	if (type === 8) { //流时
+	if ((type === 8) && (op.lsk >= 0)) { //流时
 		let s = $("#liushi" + k + " >dl:eq(" + op.lsk + ")").html();
-		$("#mp" + k + "-8").html(s);
+		$("#mp" + k + "-" + type).html(s);
+		$("#mp" + k + "-" + type).off("click").on("click", {k, type, op}, function({data:{k, type, op}}) {
+			yp(k, type, op.dyk, op.lyk, op.lmk, op.lrk, -1);
+		});
 	}
 	for (let c = 4; c <= type; c++) { //逐档选中
+		if(op[O.keys[c - 4]] < 0){
+			break;
+		}
 		$("#" + O.types[c - 4] + k + " >dl:eq(" + op[O.keys[c - 4]] + ")").addClass("selected"); //选中
 	}
 	gx(k, p);

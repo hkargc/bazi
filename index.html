@@ -246,7 +246,7 @@
 								</dd>
 							</dl>
 
-							<dl id="mp{{ k }}-4" onclick="mp({{ k }}, 4)" class="leftsolidtwo" style="background:#Ffff">
+							<dl id="mp{{ k }}-4" class="leftsolidtwo" style="background:#Ffff">
 								{% for kk, ii in p['dy'] %}
 								{% if (kk == p['dyk']) %}
 								<dt>{{ ii['syear'] }}年</dt>
@@ -269,7 +269,7 @@
 								{% endfor %}
 							</dl>
 
-							<dl id="mp{{ k }}-5" onclick="mp({{ k }}, 5)" style="background:#Ffff">
+							<dl id="mp{{ k }}-5" style="background:#Ffff">
 								{% for kk, ii in p['ly'] %}
 								{% if (p['lyk'] == kk) %}
 								<dt>{{ ii['year'] }}年</dt>
@@ -292,7 +292,7 @@
 								{% endfor %}
 							</dl>
 
-							<dl id="mp{{ k }}-6" onclick="mp({{ k }}, 6)" style="background:#Ffff">
+							<dl id="mp{{ k }}-6" style="background:#Ffff">
 								{% for kk, ii in p['lm'] %}
 								{% if (p['lmk'] == kk) %}
 								<dt style="position:relative;bottom:0">{{ ii['mm'] }}月</dt>
@@ -315,7 +315,7 @@
 								{% endfor %}
 							</dl>
 
-							<dl id="mp{{ k }}-7" onclick="mp({{ k }}, 7)" style="background:#Ffff">
+							<dl id="mp{{ k }}-7" style="background:#Ffff">
 								{% for kk, ii in p['lr'] %}
 								{% if (p['lrk'] == kk) %}
 								<dt style="position:relative;bottom:0">{{ ii['mm'] }}月</dt>
@@ -338,7 +338,7 @@
 								{% endfor %}
 							</dl>
 
-							<dl id="mp{{ k }}-8" onclick="mp({{ k }}, 8)" style="background:#Ffff">
+							<dl id="mp{{ k }}-8" style="background:#Ffff">
 								{% for kk, ii in p['ls'] %}
 								{% if (p['lsk'] == kk) %}
 								<dt style="position:relative;bottom:0">{{ ii['shh'] }}-{{ ii['ehh'] }}</dt>
